@@ -1,0 +1,108 @@
+using System;
+using System.Collections.Generic;
+
+public class Test
+{
+	public static Dictionary<int,string> actions = new Dictionary<int,string>
+	{
+		{0,""},
+		{1,"F6"},//All To Food
+		{2,"F1"},//New Villi To Food
+		{4,"F1"},
+		{5,"F1"},
+		{6,"F1"},
+		{7,"F1"},
+		{8,"F1"},
+		{9,"F1"},//Try to put new villis on Food
+		{99,""}
+	};
+	
+	public static void ProcessEngine()
+	{
+		if ( actions.ContainsKey(s) )
+		{
+			string[] cmd = actions[s].Split(',') ;
+			for ( int i = 0 ; i < cmd.Length ; i++)
+			{
+				string cmdi = cmd[i];
+				if ( ! String.IsNullOrEmpty(cmdi) )
+				{
+					int n = Convert.ToInt32(cmdi.Substring(1));
+					char d = cmdi[0];
+					if ( d == 'F' )
+					{
+						int av = min( n , vi );
+						vi -= av ;
+						vf += av ;
+					}
+					else if ( d == 'W' )
+					{
+						int av = min( n , vi );
+						vi -= av ;
+						vw += av ;
+					}
+					else if ( d == 'C' )
+					{
+						int av = min( n , vi );
+						vi -= av ;
+						vc += av ;
+					}
+				}
+			}
+		}
+		// Now people work here = for 30 seconds
+		f += Convert.ToInt32(vf * ( rf / 2 ));
+		w += Convert.ToInt32(vw * ( rw / 2 ));
+		c += Convert.ToInt32(vc * ( rc / 2 ));
+		
+		// Auto Queue
+		if ( w >= 100 ) 
+		{
+			vi++;
+			w -= 100 ;
+		}
+		s++;
+	}
+	public static void ShowResources()
+	{
+		Console.WriteLine(String.Format("\t{0}\t{1}\t{2}",f,w,c));
+	}
+	public static void Main()
+	{
+		for ( int t = 30 ; t < 1800 ; t += 30 )
+		{
+			if ( t%60 == 0 )
+			{
+				Console.Write( "At "+ (t/60) + ":00 = " );
+			}
+			else
+			{
+				Console.Write( "At "+ (t/60) + ":30 = " );
+			}
+			ShowResources();
+			ProcessEngine();
+		}
+	}
+	public static int min( int a , int b )
+	{
+		return a > b ? b : a ;
+	}
+	public static int max( int a , int b )
+	{
+		return a > b ? a : b ;
+	}
+	//{
+	public static int s = 0 ;
+	public static int f = 300 ;
+	public static int w = 400 ;
+	public static int c = 300 ;
+	public static double rf = 50 ;
+	public static double rw = 40 ;
+	public static double rc = 30 ;
+	public static int vi = 6 ;
+	public static int vf = 0 ;
+	public static int vw = 0 ;
+	public static int vc = 0 ;
+	public static int vb = 0 ;
+	//}
+}
