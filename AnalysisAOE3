@@ -3,69 +3,153 @@ using System.Collections.Generic;
 
 public class Test
 {
-	public static Dictionary<int,string> actions = new Dictionary<int,string>
+	public static Dictionary<int,string> actions = new Dictionary<int,string>();
+	public static Dictionary<int,string> targets = new Dictionary<int,string>
 	{
-		{0,""},
-		{1,"F6"},//All To Food
-		{2,"F1"},//New Villi To Food
-		{4,"F1"},
-		{5,"F1"},
-		{6,"F1"},
-		{7,"F1"},
-		{8,"F1"},
-		{9,"F1"},//Try to put new villis on Food
-		{99,""}
+		{0,"AGE"},
+		{1,"F"}
 	};
 	
 	public static void ProcessEngine()
 	{
-		if ( actions.ContainsKey(s) )
+		if ( b_h > 0 )
 		{
-			string[] cmd = actions[s].Split(',') ;
-			for ( int i = 0 ; i < cmd.Length ; i++)
+			b_h-- ; 
+			if ( b_h == 0 )// house built
 			{
-				string cmdi = cmd[i];
-				if ( ! String.IsNullOrEmpty(cmdi) )
-				{
-					int n = Convert.ToInt32(cmdi.Substring(1));
-					char d = cmdi[0];
-					if ( d == 'F' )
-					{
-						int av = min( n , vi );
-						vi -= av ;
-						vf += av ;
-					}
-					else if ( d == 'W' )
-					{
-						int av = min( n , vi );
-						vi -= av ;
-						vw += av ;
-					}
-					else if ( d == 'C' )
-					{
-						int av = min( n , vi );
-						vi -= av ;
-						vc += av ;
-					}
-				}
+				vb-- ;
+				vi++ ;
+				pop += 10 ;
 			}
 		}
-		// Now people work here = for 30 seconds
+		if ( b_w > 0 )
+		{
+			b_w-- ; 
+			if ( b_w == 0 )// wonder built
+			{
+				vb-- ;
+				vi++ ;
+			}
+		}
+		// Auto Age
+		if (  f >= 800 && b_w == -1 )// Only Once
+		{
+			b_w = 3 ;
+			if ( vi > 0 )
+			{
+				vi-- ;
+			}
+			else if ( vw > 0 )
+			{
+				vw-- ;
+			}
+			else if ( vc > 0 )
+			{
+				vc-- ;
+			}
+			else if ( vf > 0 )
+			{
+				vf-- ;
+			}
+			vb++ ;
+			f -= 800 ;// Colonial Push
+		}
+		if ( targets.ContainsKey( target ) )
+		{
+			string targetAction = targets[target];
+			bool isAchieved = false ;
+			if ( targetAction == "AGE" )
+			{
+				if (  b_w == 0 )
+				{
+					isAchieved = true ;
+					Console.WriteLine("Wonder Built");
+				}
+				else
+				{	
+					vf += vi ;
+					vi = 0 ;
+				}
+			}
+			if ( isAchieved )
+			{
+				target++;
+			}
+		}
+		// Auto Queue
+		bool needWood = false ;
+		if ( ( vi + vf + vw + vc + vb ) < pop )
+		{
+			if ( w >= 100 )
+			{
+				vi++;
+				w -= 100 ;	
+			}
+			else
+			{
+				needWood = true ;
+			}
+		}
+		else
+		{
+			if ( w >= 80 )
+			{
+				b_h = 1 ;
+				if ( vi > 0 )
+				{
+					vi-- ;
+				}
+				else if ( vw > 0 )
+				{
+					vw-- ;
+				}
+				else if ( vc > 0 )
+				{
+					vc-- ;
+				}
+				else if ( vf > 0 )
+				{
+					vf-- ;
+				}
+				vb++ ;
+				w -= 80 ;	
+			}
+			else
+			{
+				needWood = true ;
+			}
+		}
+		if ( needWood )
+		{
+			if ( vi > 0 )
+			{
+				vi-- ;
+				vw++;
+			}
+			else if ( vf > 0 )
+			{
+				vf-- ;
+				vw++;
+			}
+			else if ( vc > 0 )
+			{
+				vc-- ;
+				vw++;
+			}
+			else
+			{
+				// wait
+			}
+		}
+		
 		f += Convert.ToInt32(vf * ( rf / 2 ));
 		w += Convert.ToInt32(vw * ( rw / 2 ));
 		c += Convert.ToInt32(vc * ( rc / 2 ));
-		
-		// Auto Queue
-		if ( w >= 100 ) 
-		{
-			vi++;
-			w -= 100 ;
-		}
 		s++;
 	}
 	public static void ShowResources()
 	{
-		Console.WriteLine(String.Format("\t{0}\t{1}\t{2}",f,w,c));
+		Console.WriteLine(String.Format("\t{0}\t{1}\t{2}\t({3}/{4})",f<1000?"0"+f:""+f,w,c,( vi + vf + vw + vc + vb ),pop));
 	}
 	public static void Main()
 	{
@@ -92,10 +176,10 @@ public class Test
 		return a > b ? a : b ;
 	}
 	//{
-	public static int s = 0 ;
+	public static int s = 1 ;
 	public static int f = 300 ;
-	public static int w = 400 ;
-	public static int c = 300 ;
+	public static int w = 300 ;
+	public static int c = 100 ;
 	public static double rf = 50 ;
 	public static double rw = 40 ;
 	public static double rc = 30 ;
@@ -104,5 +188,9 @@ public class Test
 	public static int vw = 0 ;
 	public static int vc = 0 ;
 	public static int vb = 0 ;
+	public static int pop = 10 ;
+	public static int b_w = -1 ;
+	public static int b_h = 0 ;
+	public static int target = 0 ;
 	//}
 }
